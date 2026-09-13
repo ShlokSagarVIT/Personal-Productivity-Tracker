@@ -16,7 +16,6 @@ public class DatabaseManager {
             Connection connection =
                     DriverManager.getConnection(URL);
 
-            // Enable foreign key support
             try (Statement statement = connection.createStatement()) {
                 statement.execute("PRAGMA foreign_keys = ON");
             }
@@ -50,12 +49,14 @@ public class DatabaseManager {
         String focusTable = """
                 CREATE TABLE IF NOT EXISTS focus_sessions (
                     session_id INTEGER PRIMARY KEY,
-                    task_id INTEGER,
-                    activity TEXT,
+                    task_id INTEGER NOT NULL,
+                    activity TEXT NOT NULL,
                     start_time TEXT,
                     end_time TEXT,
-                    duration INTEGER,
-                    FOREIGN KEY (task_id) REFERENCES tasks(task_id)
+                    duration INTEGER NOT NULL,
+                    FOREIGN KEY (task_id)
+                        REFERENCES tasks(task_id)
+                        ON DELETE CASCADE
                 )
                 """;
 

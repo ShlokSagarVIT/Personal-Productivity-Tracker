@@ -63,15 +63,19 @@ public class TaskManager {
     // Delete a task
     public void deleteTask(int taskId) {
 
-        for (Task task : tasks) {
+        boolean removed = tasks.removeIf(
+            task -> task.getTaskId() == taskId
+        );
 
-            if (task.getTaskId() == taskId) {
-                tasks.remove(task);
-                System.out.println("Task deleted successfully.");
-                return;
-            }
+        if (removed) {
+            System.out.println("Task deleted successfully.");
+        } else {
+            System.out.println("Task not found.");
         }
+    }
 
-        System.out.println("Task not found.");
+    // Return all tasks
+    public ArrayList<Task> getTasks() {
+        return tasks;
     }
 }

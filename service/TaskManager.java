@@ -27,26 +27,45 @@ public class TaskManager {
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection connection = DatabaseManager.connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseManager.connect()) {
 
-            statement.setInt(1, task.getTaskId());
-            statement.setString(2, task.getTitle());
-            statement.setString(3, task.getDescription());
-            statement.setString(4, task.getCategory());
-            statement.setString(5, task.getPriority());
-            statement.setString(6, task.getDeadline());
-            statement.setString(7, task.getStatus());
+            if (connection == null) {
+                System.out.println("Unable to add task.");
+                return;
+            }
 
-            statement.executeUpdate();
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql)) {
 
-            tasks.add(task);
+                statement.setInt(1, task.getTaskId());
+                statement.setString(2, task.getTitle());
+                statement.setString(3, task.getDescription());
+                statement.setString(4, task.getCategory());
+                statement.setString(5, task.getPriority());
+                statement.setString(6, task.getDeadline());
+                statement.setString(7, task.getStatus());
 
-            System.out.println("Task added successfully.");
+                statement.executeUpdate();
+
+                tasks.add(task);
+
+                System.out.println("Task added successfully.");
+            }
 
         } catch (SQLException e) {
-            System.out.println("Error adding task.");
-            System.out.println("Error: " + e.getMessage());
+
+            if (e.getMessage() != null &&
+                e.getMessage().toLowerCase().contains("unique")) {
+
+                System.out.println(
+                    "A task with this ID already exists."
+                );
+
+            } else {
+
+                System.out.println("Error adding task.");
+                System.out.println("Error: " + e.getMessage());
+            }
         }
     }
 
@@ -92,43 +111,52 @@ public class TaskManager {
                 WHERE task_id = ?
                 """;
 
-        try (Connection connection = DatabaseManager.connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseManager.connect()) {
 
-            statement.setString(1, newTitle);
-            statement.setString(2, newDescription);
-            statement.setString(3, newCategory);
-            statement.setString(4, newPriority);
-            statement.setString(5, newDeadline);
-            statement.setString(6, newStatus);
-            statement.setInt(7, taskId);
+            if (connection == null) {
+                System.out.println("Unable to update task.");
+                return;
+            }
 
-            int rowsUpdated = statement.executeUpdate();
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql)) {
 
-            if (rowsUpdated > 0) {
+                statement.setString(1, newTitle);
+                statement.setString(2, newDescription);
+                statement.setString(3, newCategory);
+                statement.setString(4, newPriority);
+                statement.setString(5, newDeadline);
+                statement.setString(6, newStatus);
+                statement.setInt(7, taskId);
 
-                for (Task task : tasks) {
+                int rowsUpdated = statement.executeUpdate();
 
-                    if (task.getTaskId() == taskId) {
+                if (rowsUpdated > 0) {
 
-                        task.setTitle(newTitle);
-                        task.setDescription(newDescription);
-                        task.setCategory(newCategory);
-                        task.setPriority(newPriority);
-                        task.setDeadline(newDeadline);
-                        task.setStatus(newStatus);
+                    for (Task task : tasks) {
 
-                        break;
+                        if (task.getTaskId() == taskId) {
+
+                            task.setTitle(newTitle);
+                            task.setDescription(newDescription);
+                            task.setCategory(newCategory);
+                            task.setPriority(newPriority);
+                            task.setDeadline(newDeadline);
+                            task.setStatus(newStatus);
+
+                            break;
+                        }
                     }
+
+                    System.out.println("Task updated successfully.");
+
+                } else {
+                    System.out.println("Task not found.");
                 }
-
-                System.out.println("Task updated successfully.");
-
-            } else {
-                System.out.println("Task not found.");
             }
 
         } catch (SQLException e) {
+
             System.out.println("Error updating task.");
             System.out.println("Error: " + e.getMessage());
         }
@@ -139,29 +167,51 @@ public class TaskManager {
 
         String sql = "DELETE FROM tasks WHERE task_id = ?";
 
-        try (Connection connection = DatabaseManager.connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseManager.connect()) {
 
-            statement.setInt(1, taskId);
+            if (connection == null) {
+                System.out.println("Unable to delete task.");
+                return;
+            }
 
-            int rowsDeleted = statement.executeUpdate();
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql)) {
 
-            if (rowsDeleted > 0) {
+                statement.setInt(1, taskId);
 
-                tasks.removeIf(
-                    task -> task.getTaskId() == taskId
-                );
+                int rowsDeleted = statement.executeUpdate();
 
-                System.out.println("Task deleted successfully.");
+                if (rowsDeleted > 0) {
 
-            } else {
-                System.out.println("Task not found.");
+                    tasks.removeIf(
+                        task -> task.getTaskId() == taskId
+                    );
+
+                    System.out.println("Task deleted successfully.");
+
+                } else {
+                    System.out.println("Task not found.");
+                }
             }
 
         } catch (SQLException e) {
+
             System.out.println("Error deleting task.");
             System.out.println("Error: " + e.getMessage());
         }
+    }
+
+    // Check whether a task exists
+    public boolean taskExists(int taskId) {
+
+        for (Task task : tasks) {
+
+            if (task.getTaskId() == taskId) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Load existing tasks from database
@@ -169,26 +219,35 @@ public class TaskManager {
 
         String sql = "SELECT * FROM tasks";
 
-        try (Connection connection = DatabaseManager.connect();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+        try (Connection connection = DatabaseManager.connect()) {
 
-            while (resultSet.next()) {
+            if (connection == null) {
+                System.out.println("Unable to load tasks.");
+                return;
+            }
 
-                Task task = new Task(
-                    resultSet.getInt("task_id"),
-                    resultSet.getString("title"),
-                    resultSet.getString("description"),
-                    resultSet.getString("category"),
-                    resultSet.getString("priority"),
-                    resultSet.getString("deadline"),
-                    resultSet.getString("status")
-                );
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql);
+                 ResultSet resultSet = statement.executeQuery()) {
 
-                tasks.add(task);
+                while (resultSet.next()) {
+
+                    Task task = new Task(
+                        resultSet.getInt("task_id"),
+                        resultSet.getString("title"),
+                        resultSet.getString("description"),
+                        resultSet.getString("category"),
+                        resultSet.getString("priority"),
+                        resultSet.getString("deadline"),
+                        resultSet.getString("status")
+                    );
+
+                    tasks.add(task);
+                }
             }
 
         } catch (SQLException e) {
+
             System.out.println("Error loading tasks.");
             System.out.println("Error: " + e.getMessage());
         }

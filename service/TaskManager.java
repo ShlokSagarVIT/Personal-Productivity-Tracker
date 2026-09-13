@@ -7,27 +7,71 @@ public class TaskManager {
 
     private ArrayList<Task> tasks;
 
-public TaskManager() {
-    tasks = new ArrayList<>();
-}
-
-public void addTask(Task task) {
-    tasks.add(task);
-}
-public void viewTasks() {
-    if (tasks.isEmpty()) {
-        System.out.println("No tasks available.");
-        return;
+    public TaskManager() {
+        tasks = new ArrayList<>();
     }
 
-    for (Task task : tasks) {
-        System.out.println("Task ID: " + task.getTaskId());
-        System.out.println("Title: " + task.getTitle());
-        System.out.println("Category: " + task.getCategory());
-        System.out.println("Priority: " + task.getPriority());
-        System.out.println("Deadline: " + task.getDeadline());
-        System.out.println("Status: " + task.getStatus());
-        System.out.println("----------------------------");
+    // Add a new task
+    public void addTask(Task task) {
+        tasks.add(task);
+        System.out.println("Task added successfully.");
     }
-}
+
+    // Display all tasks
+    public void viewTasks() {
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks available.");
+            return;
+        }
+
+        for (Task task : tasks) {
+            System.out.println("Task ID: " + task.getTaskId());
+            System.out.println("Title: " + task.getTitle());
+            System.out.println("Description: " + task.getDescription());
+            System.out.println("Category: " + task.getCategory());
+            System.out.println("Priority: " + task.getPriority());
+            System.out.println("Deadline: " + task.getDeadline());
+            System.out.println("Status: " + task.getStatus());
+            System.out.println("----------------------------");
+        }
+    }
+
+    // Update an existing task
+    public void updateTask(int taskId, String newTitle, String newDescription,
+                           String newCategory, String newPriority,
+                           String newDeadline, String newStatus) {
+
+        for (Task task : tasks) {
+
+            if (task.getTaskId() == taskId) {
+
+                task.setTitle(newTitle);
+                task.setDescription(newDescription);
+                task.setCategory(newCategory);
+                task.setPriority(newPriority);
+                task.setDeadline(newDeadline);
+                task.setStatus(newStatus);
+
+                System.out.println("Task updated successfully.");
+                return;
+            }
+        }
+
+        System.out.println("Task not found.");
+    }
+
+    // Delete a task
+    public void deleteTask(int taskId) {
+
+        for (Task task : tasks) {
+
+            if (task.getTaskId() == taskId) {
+                tasks.remove(task);
+                System.out.println("Task deleted successfully.");
+                return;
+            }
+        }
+
+        System.out.println("Task not found.");
+    }
 }

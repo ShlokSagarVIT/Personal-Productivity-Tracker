@@ -9,7 +9,7 @@ public class DatabaseManager {
 
     private static final String URL = "jdbc:sqlite:productivity.db";
 
-    // Connect to the SQLite database
+    // Establish connection with SQLite database
     public static Connection connect() {
 
         try {
@@ -19,12 +19,12 @@ public class DatabaseManager {
 
         } catch (SQLException e) {
             System.out.println("Database connection failed.");
-            System.out.println(e.getMessage());
+            System.out.println("Error: " + e.getMessage());
             return null;
         }
     }
 
-    // Create required database tables
+    // Create database tables
     public static void createTables() {
 
         String taskTable = """
@@ -60,7 +60,7 @@ public class DatabaseManager {
 
         } catch (SQLException e) {
             System.out.println("Error creating database tables.");
-            System.out.println(e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }

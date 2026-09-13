@@ -1,0 +1,13 @@
+# SQLite database
+productivity.db
+
+# Maven build files
+target/
+
+# Compiled Java files
+*.class
+
+# IDE files
+.idea/
+.vscode/
+*.iml

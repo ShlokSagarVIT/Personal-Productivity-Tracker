@@ -27,25 +27,62 @@ public class FocusTracker {
                 VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection connection = DatabaseManager.connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseManager.connect()) {
 
-            statement.setInt(1, session.getSessionId());
-            statement.setInt(2, session.getTaskId());
-            statement.setString(3, session.getActivity());
-            statement.setString(4, session.getStartTime());
-            statement.setString(5, session.getEndTime());
-            statement.setInt(6, session.getDuration());
+            if (connection == null) {
+                System.out.println(
+                    "Unable to add focus session."
+                );
+                return;
+            }
 
-            statement.executeUpdate();
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql)) {
 
-            sessions.add(session);
+                statement.setInt(1, session.getSessionId());
+                statement.setInt(2, session.getTaskId());
+                statement.setString(3, session.getActivity());
+                statement.setString(4, session.getStartTime());
+                statement.setString(5, session.getEndTime());
+                statement.setInt(6, session.getDuration());
 
-            System.out.println("Focus session added successfully.");
+                statement.executeUpdate();
+
+                sessions.add(session);
+
+                System.out.println(
+                    "Focus session added successfully."
+                );
+            }
 
         } catch (SQLException e) {
-            System.out.println("Error adding focus session.");
-            System.out.println("Error: " + e.getMessage());
+
+            String message = e.getMessage();
+
+            if (message != null &&
+                message.toLowerCase().contains("unique")) {
+
+                System.out.println(
+                    "A focus session with this ID already exists."
+                );
+
+            } else if (message != null &&
+                       message.toLowerCase().contains("foreign key")) {
+
+                System.out.println(
+                    "The specified Task ID does not exist."
+                );
+
+            } else {
+
+                System.out.println(
+                    "Error adding focus session."
+                );
+
+                System.out.println(
+                    "Error: " + message
+                );
+            }
         }
     }
 
@@ -53,22 +90,43 @@ public class FocusTracker {
     public void viewSessions() {
 
         if (sessions.isEmpty()) {
-            System.out.println("No focus sessions available.");
+            System.out.println(
+                "No focus sessions available."
+            );
             return;
         }
 
         for (FocusSession session : sessions) {
 
-            System.out.println("Session ID: " + session.getSessionId());
-            System.out.println("Task ID: " + session.getTaskId());
-            System.out.println("Activity: " + session.getActivity());
-            System.out.println("Start Time: " + session.getStartTime());
-            System.out.println("End Time: " + session.getEndTime());
             System.out.println(
-                "Duration: " + session.getDuration() + " minutes"
+                "Session ID: " + session.getSessionId()
             );
 
-            System.out.println("----------------------------");
+            System.out.println(
+                "Task ID: " + session.getTaskId()
+            );
+
+            System.out.println(
+                "Activity: " + session.getActivity()
+            );
+
+            System.out.println(
+                "Start Time: " + session.getStartTime()
+            );
+
+            System.out.println(
+                "End Time: " + session.getEndTime()
+            );
+
+            System.out.println(
+                "Duration: "
+                + session.getDuration()
+                + " minutes"
+            );
+
+            System.out.println(
+                "----------------------------"
+            );
         }
     }
 
@@ -99,27 +157,45 @@ public class FocusTracker {
 
         String sql = "SELECT * FROM focus_sessions";
 
-        try (Connection connection = DatabaseManager.connect();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+        try (Connection connection = DatabaseManager.connect()) {
 
-            while (resultSet.next()) {
-
-                FocusSession session = new FocusSession(
-                    resultSet.getInt("session_id"),
-                    resultSet.getInt("task_id"),
-                    resultSet.getString("activity"),
-                    resultSet.getString("start_time"),
-                    resultSet.getString("end_time"),
-                    resultSet.getInt("duration")
+            if (connection == null) {
+                System.out.println(
+                    "Unable to load focus sessions."
                 );
+                return;
+            }
 
-                sessions.add(session);
+            try (PreparedStatement statement =
+                         connection.prepareStatement(sql);
+                 ResultSet resultSet =
+                         statement.executeQuery()) {
+
+                while (resultSet.next()) {
+
+                    FocusSession session =
+                        new FocusSession(
+                            resultSet.getInt("session_id"),
+                            resultSet.getInt("task_id"),
+                            resultSet.getString("activity"),
+                            resultSet.getString("start_time"),
+                            resultSet.getString("end_time"),
+                            resultSet.getInt("duration")
+                        );
+
+                    sessions.add(session);
+                }
             }
 
         } catch (SQLException e) {
-            System.out.println("Error loading focus sessions.");
-            System.out.println("Error: " + e.getMessage());
+
+            System.out.println(
+                "Error loading focus sessions."
+            );
+
+            System.out.println(
+                "Error: " + e.getMessage()
+            );
         }
     }
 

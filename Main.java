@@ -5,12 +5,16 @@ import service.FocusTracker;
 import service.Analytics;
 import service.ReportGenerator;
 import util.Validator;
+import util.DatabaseManager;
 
 import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
+
+        // Initialize database
+        DatabaseManager.createTables();
 
         Scanner scanner = new Scanner(System.in);
 
@@ -248,12 +252,16 @@ public class Main {
                 case 9:
 
                     System.out.println();
-                    System.out.println("Thank you for using Personal Productivity Tracker!");
+                    System.out.println(
+                        "Thank you for using Personal Productivity Tracker!"
+                    );
                     break;
 
                 default:
 
-                    System.out.println("Invalid choice. Please try again.");
+                    System.out.println(
+                        "Invalid choice. Please try again."
+                    );
             }
 
         } while (choice != 9);

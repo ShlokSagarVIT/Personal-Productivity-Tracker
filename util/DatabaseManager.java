@@ -13,13 +13,21 @@ public class DatabaseManager {
     public static Connection connect() {
 
         try {
-            Connection connection = DriverManager.getConnection(URL);
-            System.out.println("Database connected successfully.");
+            Connection connection =
+                    DriverManager.getConnection(URL);
+
+            // Enable foreign key support
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("PRAGMA foreign_keys = ON");
+            }
+
             return connection;
 
         } catch (SQLException e) {
+
             System.out.println("Database connection failed.");
             System.out.println("Error: " + e.getMessage());
+
             return null;
         }
     }
@@ -46,21 +54,39 @@ public class DatabaseManager {
                     activity TEXT,
                     start_time TEXT,
                     end_time TEXT,
-                    duration INTEGER
+                    duration INTEGER,
+                    FOREIGN KEY (task_id) REFERENCES tasks(task_id)
                 )
                 """;
 
-        try (Connection connection = connect();
+        Connection connection = connect();
+
+        if (connection == null) {
+            System.out.println(
+                "Database tables could not be created."
+            );
+            return;
+        }
+
+        try (connection;
              Statement statement = connection.createStatement()) {
 
             statement.execute(taskTable);
             statement.execute(focusTable);
 
-            System.out.println("Database tables created successfully.");
+            System.out.println(
+                "Database tables created successfully."
+            );
 
         } catch (SQLException e) {
-            System.out.println("Error creating database tables.");
-            System.out.println("Error: " + e.getMessage());
+
+            System.out.println(
+                "Error creating database tables."
+            );
+
+            System.out.println(
+                "Error: " + e.getMessage()
+            );
         }
     }
 }

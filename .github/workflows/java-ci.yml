@@ -30,4 +30,4 @@ jobs:
         run: mvn -B compile
 
       - name: Run tests
-        run: mvn -B exec:java -Dexec.mainClass=TestRunner
+        run: mvn -B exec:java@run-tests

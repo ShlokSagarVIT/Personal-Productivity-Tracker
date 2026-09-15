@@ -48,15 +48,32 @@
                 </configuration>
             </plugin>
 
-            <!-- Run Java application using Maven -->
+            <!-- Maven Exec Plugin -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.5.0</version>
 
-                <configuration>
-                    <mainClass>Main</mainClass>
-                </configuration>
+                <executions>
+
+                    <!-- Normal application -->
+                    <execution>
+                        <id>run-main</id>
+                        <configuration>
+                            <mainClass>Main</mainClass>
+                        </configuration>
+                    </execution>
+
+                    <!-- Automated tests -->
+                    <execution>
+                        <id>run-tests</id>
+                        <configuration>
+                            <mainClass>TestRunner</mainClass>
+                        </configuration>
+                    </execution>
+
+                </executions>
+
             </plugin>
 
         </plugins>
